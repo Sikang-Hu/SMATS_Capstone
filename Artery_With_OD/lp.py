@@ -213,6 +213,41 @@ def test_offsets(w_incoming, delta0, g_i_inbound, g_i_outbound, alpha, C, n_test
         Optimal bandwidth: {} \n
         New random bandwidth: {}""".format(it, random_offsets, w_incoming, optimal_bandwidth, random_bandwidth)
 
+
+def of_filter(offsets, delta0, delta, g_i_inbound, g_i_outbound, alpha):
+    """
+    Check whether the offset is in feasible area
+    """
+    b_incoming, b_outgoing = compute_bandwidths(offsets, delta0, g_i_inbound, g_i_outbound)
+    N = len(offsets)
+    for i in range(N):
+        if (b_incoming > g_i_inbound[i] or b_outgoing > g_i_outbound[i]):
+            return False
+
+
+    for i in range(1, N):
+        for j in range(1, N):
+            if (i != j and b_incoming + offsets[i] - offsets[j] > (g_i_inbound[i] + g_i_inbound[j]) / 2):
+                return False
+            if (i != j and b_incoming - offsets[i] + offsets[j] > (g_i_inbound[i] + g_i_inbound[j]) / 2):
+                return False
+            if (i != j and b_outgoing + offsets[i] - offsets[j] > (g_i_outbound[i] + g_i_inbound[j]) / 2 - (delta[i] - delta[j])):
+                return False
+            if (i != j and b_outgoing - offsets[i] + offsets[j] > (g_i_outbound[i] + g_i_inbound[j]) / 2 + (delta[i] - delta[j])):
+                return False
+
+        if b_incoming + offsets[i] > (g_i_inbound[0] + g_i_inbound[i]) / 2:
+            return False
+        if b_incoming - offsets[i] > (g_i_inbound[0] + g_i_inbound[i]) / 2:
+            return False
+        if b_outgoing + offsets[i] > (g_i_outbound[0] + g_i_outbound[i]) / 2 - (delta[i] - delta[1]):
+            return False
+        if b_outgoing - offsets[i] > (g_i_outbound[0] + g_i_outbound[i]) / 2 + (delta[i] - delta[1]):
+            return False
+
+    return True
+
+
 def modulo(t, C):
     """
     Custom modulo function
