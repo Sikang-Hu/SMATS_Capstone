@@ -7,6 +7,7 @@ import pandas as pd
 from sensor_detections import sensor_detections, travel_times
 from lp import get_alpha, get_delta, solve_pulse
 from run_sumo import modify_offsets
+import shutil
 
 def performance_metrics(detection_times):
 
@@ -71,8 +72,14 @@ def optimize(sumo_output, sensors_x, sensors_y, sensors_rad, C, n_intersections,
                                                 test=test)
 
     # Run new offsets into SUMO
+
+    try:
+        shutil.copy("quickstart.net.xml", "optimized.net.xml")
+    except:
+        print("Missing 'quickstart.net.xml'")
+
     modify_offsets(theta_inbound, theta_outbound, g_i_inbound, g_i_outbound, C, trans_time=3,
-                   network_path="quickstart.net.xml")
+                   network_path="optimized.net.xml")
     return theta_inbound, theta_outbound
 
 
